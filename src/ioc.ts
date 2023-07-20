@@ -56,12 +56,14 @@ export class Container<K, S> {
   }
 }
 
-// @ts-ignore
-export function Injectable<T>(target: typeof T, context): typeof T {
-  // if (context.kind === "class") {
-  // const decorated = class extends target {};
+// TODO: Extend support to functions
+export function Injectable<T>(
+  target: { new (): T },
+  context: { kind: "class" }
+): { new (): T } {
+  if (context.kind !== "class")
+    throw new Error("@Injectable only supports classes");
   const container = Container.getInstance();
   container.register(target, () => new target());
   return target;
-  // }
 }
