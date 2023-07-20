@@ -10,8 +10,8 @@
     "test": "vitest",
     "coverage": "vitest run --coverage"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Collin Choy",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.4.2",
     "nodemon": "^3.0.1",
