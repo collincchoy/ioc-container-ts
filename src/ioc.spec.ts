@@ -27,6 +27,33 @@ describe("container", () => {
     expect(container.resolve(Service)).toBe(container.resolve(Service));
   });
 
+  it("can register and resolve non-circular dependencies", () => {
+    const container = Container.init();
+    class ServiceA {
+      read() {
+        return "expectedString";
+      }
+    }
+    class ServiceB {
+      constructor(private serviceA: ServiceA) {
+        this.serviceA = serviceA;
+      }
+
+      callServiceA() {
+        return this.serviceA.read();
+      }
+    }
+
+    container.register(ServiceA, () => new ServiceA());
+    container.register(ServiceB, (deps: any) => new ServiceB(deps[0]), {
+      dependencies: [ServiceA],
+    });
+
+    const resolved = container.resolve<ServiceB>(ServiceB);
+    expect(resolved).toBeInstanceOf(ServiceB);
+    expect(resolved.callServiceA()).toBe("expectedString");
+  });
+
   // vitest doesn't support new ES/TS5 decorators https://github.com/vitest-dev/vitest/issues/3140
   it.fails("can register and resolve services via decorators", () => {
     const container = Container.init();
