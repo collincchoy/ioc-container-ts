@@ -24,7 +24,9 @@ const container = Container.init();
 // container.register<Logger>(Logger, () => new Logger());
 container.register<Service>(
   Service,
-  () => new Service(container.resolve<Logger>(Logger))
+  // @ts-ignore
+  (deps: unknown[]) => new Service(...deps),
+  { singleton: true, dependencies: [Logger] }
 );
 
 const service = container.resolve<Service>(Service);

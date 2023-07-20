@@ -1,11 +1,14 @@
 type RegisterOptions = {
-  dependencies?: [];
+  dependencies?: Array<any>;
   singleton?: boolean;
 };
 
 export class Container<K, S> {
   private static instance: Container<unknown, unknown>;
-  private registry: Map<K, [() => S, S | null, RegisterOptions]>;
+  private registry: Map<
+    K,
+    [(deps?: Array<any>) => S, S | null, RegisterOptions]
+  >;
   constructor() {
     this.registry = new Map();
   }
@@ -23,10 +26,13 @@ export class Container<K, S> {
 
   register<T extends S>(
     key: K,
-    factory: () => T,
+    factory: (deps?: Array<any>) => T,
     options: RegisterOptions = {}
   ) {
-    this.registry.set(key, [factory, factory(), options]);
+    if (options.dependencies == undefined) {
+      options.dependencies = [];
+    }
+    this.registry.set(key, [factory, null, options]);
   }
 
   resolve<T>(key: K): T {
@@ -38,11 +44,15 @@ export class Container<K, S> {
     if (options.singleton && instance != null) {
       return instance as T;
     }
-    const newSingleton = factory();
-    resolved[1] = newSingleton;
+
+    // TODO: Handle circular dependencies
+    const deps = options.dependencies?.map((dep) => this.resolve(dep));
+    const newInstance = factory(deps);
+
+    resolved[1] = newInstance;
     this.registry.set(key, resolved);
 
-    return <T>(<unknown>newSingleton);
+    return <T>(<unknown>newInstance);
   }
 }
 
