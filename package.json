@@ -1,0 +1,14 @@
+{
+  "name": "ioc-container",
+  "version": "1.0.0",
+  "description": "a mini library containing an Inversion of Control (IoC) container implementaiton",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}
