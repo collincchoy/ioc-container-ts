@@ -19,3 +19,20 @@ For examples, refer to `src/ioc.spec.ts` and the example application at `src/ind
 - Improve decorator api. Should support manual dependency registration
 - Fix test suite to handle TS5/ES decorators
 - Fix issue with test suite where `vitest.describe` is sometimes is not recognized (Note: if you encounter this via `npm test`, making a file edit with the watcher running usually fixes. must be timing related 🧐)
+
+## Developing/testing locally
+
+To run using `ts-node` with auto-reload on file changes:
+
+```sh
+npm run dev
+```
+
+To run test suite:
+
+```sh
+npm test
+```
+
+> **Warning**
+> Sometimes the test suite may fail to find `vitest.describe` - editing a file while `npm test` is still running usually fixes this issue.
