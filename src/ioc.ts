@@ -1,6 +1,11 @@
+type RegisterOptions = {
+  dependencies?: [];
+  singleton?: boolean;
+};
+
 export class Container<K, S> {
   private static instance: Container<unknown, unknown>;
-  private registry: Map<K, [() => S, S | null]>;
+  private registry: Map<K, [() => S, S | null, RegisterOptions]>;
   constructor() {
     this.registry = new Map();
   }
@@ -16,8 +21,12 @@ export class Container<K, S> {
     return Container.instance as Container<M, N>;
   }
 
-  register<T extends S>(key: K, factory: () => T) {
-    this.registry.set(key, [factory, factory()]);
+  register<T extends S>(
+    key: K,
+    factory: () => T,
+    options: RegisterOptions = {}
+  ) {
+    this.registry.set(key, [factory, factory(), options]);
   }
 
   resolve<T>(key: K): T {
@@ -25,10 +34,11 @@ export class Container<K, S> {
     if (!resolved) {
       throw new Error(`Failed to resolve ${key}`);
     }
-    if (resolved[1] != null) {
-      return resolved[1] as T;
+    const [factory, instance, options] = resolved;
+    if (options.singleton && instance != null) {
+      return instance as T;
     }
-    const newSingleton = resolved[0]();
+    const newSingleton = factory();
     resolved[1] = newSingleton;
     this.registry.set(key, resolved);
 
@@ -39,14 +49,9 @@ export class Container<K, S> {
 // @ts-ignore
 export function Injectable<T>(target: typeof T, context): typeof T {
   // if (context.kind === "class") {
-  const decorated = class extends target {
-    fuel: number = 50;
-    isEmpty(): boolean {
-      return this.fuel == 0;
-    }
-  };
+  // const decorated = class extends target {};
   const container = Container.getInstance();
-  container.register(decorated, () => new decorated());
-  return decorated;
+  container.register(target, () => new target());
+  return target;
   // }
 }
